@@ -16,7 +16,8 @@ limitations under the License.
 package config
 
 import (
-	"firemesh/cmd/shared"
+	"sensormesh/cmd/shared"
+
 	"github.com/spf13/cobra"
 )
 
@@ -32,6 +33,6 @@ var loadCmd = &cobra.Command{
 func init() {
 	ConfigCmd.AddCommand(loadCmd)
 
-	loadCmd.Flags().StringVar(&shared.ConfigFilePath, "path", shared.ConfigFilePath, "FireMesh configuration file. Defaults to \"~/.firemesh/config.yaml\"")
+	loadCmd.Flags().StringVar(&shared.ConfigFilePath, "path", shared.ConfigFilePath, "FireMesh configuration file. Defaults to \"~/.sensormesh/config.yaml\"")
 	_ = loadCmd.MarkFlagRequired("path")
 }

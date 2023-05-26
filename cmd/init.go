@@ -6,21 +6,23 @@ package cmd
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"firemesh/cmd/shared"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sensormesh/cmd/shared"
 
 	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/spf13/cobra"
 )
 
 var (
-	IpfsApi				*shell.Shell
-	IpfsPath			string
-	swarmKey			string
-	swarmKeyFilePath	= filepath.Join(shared.GetUserHomeDir(), ".ipfs", "swarm.key")
+	IpfsApi          *shell.Shell
+	IpfsPath         string
+	swarmKey         string
+	nodename         string
+	logfile          string
+	swarmKeyFilePath = filepath.Join(shared.GetUserHomeDir(), ".ipfs", "swarm.key")
 )
 
 func createSwarmKeyFile() {
@@ -66,59 +68,44 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize local FireMesh configuration",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		var ipfsCmd *exec.Cmd
-
-		// Searching for existing IPFS directory
-		exists, _ := shared.Exists(filepath.Join(shared.GetUserHomeDir(), ".ipfs", "config"))
-		if !exists {
-			// Find IPFS binary absolute path
-			_temp, err := exec.LookPath("ipfs")
-			IpfsPath = _temp
-			if err == nil {
-				IpfsPath, err = filepath.Abs(IpfsPath)
-			}
-			if err != nil {
-				fmt.Println("Error while looking for existing IPFS binary: ", err)
-				os.Exit(1)
-			}
-
-			// Initiate IPFS service
-			ipfsCmd = exec.Command(IpfsPath, "init")
-			err = ipfsCmd.Run()
-			if err != nil {
-				fmt.Println("Error while creating IPFS config files: ", err)
-				os.Exit(1)
-			}
-		} else {
-			fmt.Println("IPFS config file already exists")
+		// Checking if IPFS configs exist
+		_, err := shared.Exists(filepath.Join(shared.GetUserHomeDir(), ".ipfs", "config"))
+		if err != nil {
+			panic(fmt.Errorf("configuration file not set. Try running 'ipfs init' first: %s", err))
 		}
 
 		// Creates new swarm key file
 		createSwarmKeyFile()
 
-		// Clear bootstrap addresses
-		IpfsApi = shell.NewShell("localhost:5001")
-		_, err := IpfsApi.BootstrapRmAll()
-		if err != nil {
-			fmt.Println("Error while removing bootstrap addresses: ", err)
-		}
-
 		// Changing to DHT type routing
-		ipfsCmd = exec.Command("ipfs", "config", "Routing.Type", "dht")
+		ipfsCmd := exec.Command("ipfs", "config", "Routing.Type", "dht")
 		err = ipfsCmd.Run()
 		if err != nil {
-			fmt.Println("Error while starting IPFS config files: ", err)
-			os.Exit(1)
+			panic(fmt.Errorf("error while starting IPFS config files: %v", err))
 		}
 
-		// Load firemesh configurations to Viper
+		// Remove all bootstrap addresses
+		ipfsCmd = exec.Command("ipfs", "bootstrap", "rm", "--all")
+		err = ipfsCmd.Run()
+		if err != nil {
+			panic(fmt.Errorf("error trying to remove bootstrap adresses: %v", err))
+		}
+
+		// Load sensormesh configurations to Viper
 		shared.LoadConfigurationFromFile()
+
+		// Set the node's initial configurati
+		shared.ViperConfs.Set("name", nodename)
+		shared.ViperConfs.Set("logfile", logfile)
+		shared.ViperConfs.WriteConfig()
+
+		fmt.Println("New sensormesh node " + shared.ViperConfs.GetString("name") + " created !")
 	},
 }
 
 func init() {
 	initCmd.Flags().StringVar(&swarmKey, "swarmKey", "", "IPFS private network swarm key, if none provided, creates a new one")
-
+	initCmd.Flags().StringVar(&nodename, "nodename", "SensorMeshNode", "IPFS private network swarm key, if none provided, creates a new one")
+	initCmd.Flags().StringVar(&logfile, "logfile", "~/.sensormesh/sensormesh.log", "Path destination for logfile, Defaults to '~/.sensormesh/sensormesh.log'")
 	rootCmd.AddCommand(initCmd)
 }

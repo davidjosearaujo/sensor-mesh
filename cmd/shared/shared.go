@@ -6,6 +6,7 @@ package shared
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -14,15 +15,15 @@ import (
 )
 
 var (
+	NodeName       string
 	ViperConfs     = viper.New()
-	ConfigFilePath = filepath.Join(GetUserHomeDir(), ".firemesh", "config.yaml")
+	ConfigFilePath = filepath.Join(GetUserHomeDir(), ".sensormesh", "config.yaml")
 )
 
 func GetUserHomeDir() string {
 	usr, err := user.Current()
 	if err != nil {
-		fmt.Printf("Error getting user home directory: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Errorf("error getting user home directory: %v", err))
 	}
 	return usr.HomeDir
 }
@@ -50,15 +51,13 @@ func AddSensor(name string,
 	ViperConfs.Set("sensors", sensorList)
 	err := ViperConfs.WriteConfig()
 	if err != nil {
-		fmt.Printf("Error updating config file: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Errorf("error updating config file: %v", err))
 	}
 }
 
 func RemoveSensor(name string) {
 	if ViperConfs.Get("sensors") == nil {
-		fmt.Println("Error: There are no sensors to remove")
-		os.Exit(1)
+		panic(fmt.Errorf("there are no sensors to remove"))
 	}
 
 	sensorList := ViperConfs.Get("sensors").([]interface{})
@@ -74,8 +73,7 @@ func RemoveSensor(name string) {
 	ViperConfs.Set("sensors", updatedSensors)
 	err := ViperConfs.WriteConfig()
 	if err != nil {
-		fmt.Printf("Error updating config file: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Errorf("error updating config file: %v", err))
 	}
 }
 
@@ -96,16 +94,14 @@ func LoadConfigurationFromFile() {
 	if !exists {
 		err = os.MkdirAll(filepath.Dir(ConfigFilePath), 0700)
 		if err != nil {
-			fmt.Printf("Error creating directories: %v\n", err)
-			os.Exit(1)
+			panic(fmt.Errorf("error creating directories: %v", err))
 		}
 		file, err = os.Create(ConfigFilePath)
 		if err != nil {
-			fmt.Printf("Error generating config file: %v\n", err)
-			os.Exit(1)
+			panic(fmt.Errorf("error generating config file: %v", err))
 		}
 		defer file.Close()
-		file.Write(OriginalConfigFileContent)
+		file.Write([]byte(""))
 	}
 
 	path, name := filepath.Split(ConfigFilePath)
@@ -113,17 +109,16 @@ func LoadConfigurationFromFile() {
 	ViperConfs.SetConfigName(strings.TrimSuffix(name, filepath.Ext(name)))
 	ViperConfs.SetConfigType("yaml")
 	ViperConfs.ReadInConfig()
+	ViperConfs.WatchConfig()
 }
 
-// Default content of configuration file
-var OriginalConfigFileContent = []byte(`# configuration verification interval in seconds
-refresh: 60
+func LocalIPFSApiAddress() string {
+	// Find local IPFS node API address
+	out, err1 := exec.Command("ipfs", "config", "Addresses.API").Output()
+	if err1 != nil {
+		panic(err1)
+	}
+	ipfsApiIP := strings.Split(string(out), "/")[2] + ":" + strings.TrimSuffix(strings.Split(string(out), "/")[4], "\n")
 
-# List of sensors
-sensors:
-
-# Log files and respective locations
-logFiles:
-  public: "~/.firemesh/community.log"
-  private: "~/.firemesh/private.log"
-`)
+	return ipfsApiIP
+}

@@ -1,21 +1,21 @@
 /*
 Copyright © 2023 David Araújo <davidaraujo98.github.io>
-
 */
 package cmd
 
 import (
 	"os"
-	"firemesh/cmd/sensor"
-	"firemesh/cmd/config"
+	"sensormesh/cmd/config"
+	"sensormesh/cmd/sensor"
+
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "firemesh",
+	Use:   "sensormesh",
 	Short: "",
-	Long: ``,
+	Long:  ``,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -4,15 +4,16 @@ Copyright © 2023 David Araújo <davidaraujo98@github.io>
 package sensor
 
 import (
+	"sensormesh/cmd/shared"
+
 	"github.com/spf13/cobra"
-	"firemesh/cmd/shared"
 )
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "Remove a sensor",
-	Example: "firemesh sensor remove --name=\"humidity\"",
+	Use:     "remove",
+	Short:   "Remove a sensor",
+	Example: "sensormesh sensor remove --name=\"humidity\"",
 	Run: func(cmd *cobra.Command, args []string) {
 		shared.RemoveSensor(_name)
 	},

@@ -16,9 +16,9 @@ limitations under the License.
 package config
 
 import (
-	"firemesh/cmd/shared"
 	"os"
 	"path/filepath"
+	"sensormesh/cmd/shared"
 
 	"github.com/spf13/cobra"
 )
@@ -27,8 +27,8 @@ import (
 var restoreCmd = &cobra.Command{
 	Use:   "restore",
 	Short: "Reverts to factory configuration file",
-	Run: func(cmd *cobra.Command, args []string) { 
-		shared.ConfigFilePath = filepath.Join(shared.GetUserHomeDir(), ".firemesh", "config.yaml")
+	Run: func(cmd *cobra.Command, args []string) {
+		shared.ConfigFilePath = filepath.Join(shared.GetUserHomeDir(), ".sensormesh", "config.yaml")
 		os.Remove(shared.ConfigFilePath)
 		shared.LoadConfigurationFromFile()
 	},

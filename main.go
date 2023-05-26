@@ -1,11 +1,10 @@
 /*
 Copyright © 2023 David Araújo <davidaraujo98.github.io>
-
 */
 package main
 
 import (
-	"firemesh/cmd"
+	"sensormesh/cmd"
 )
 
 func main() {

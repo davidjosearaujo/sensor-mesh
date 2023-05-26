@@ -4,17 +4,18 @@ Copyright © 2023 David Araújo <davidaraujo98@github.io>
 package sensor
 
 import (
+	"sensormesh/cmd/shared"
+
 	"github.com/spf13/cobra"
-	"firemesh/cmd/shared"
 )
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:     "add",
 	Short:   "Add a new sensor",
-	Example: "firemesh sensor add --name=\"humidity\" --baud=9600 --parity=\"None\" --port=\"/dev/ttyUSB0\" --size=8 --stop=\"Stop1\" --interval=60",
+	Example: "sensormesh sensor add --name=\"humidity\" --baud=9600 --parity=\"None\" --port=\"/dev/ttyUSB0\" --size=8 --stop=\"Stop1\" --interval=60",
 	Run: func(cmd *cobra.Command, args []string) {
-		shared.AddSensor(_name,_port,_baud,_size,_parity,_stop,_interval)
+		shared.AddSensor(_name, _port, _baud, _size, _parity, _stop, _interval)
 	},
 }
 

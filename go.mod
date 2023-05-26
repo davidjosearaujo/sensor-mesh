@@ -1,4 +1,4 @@
-module firemesh
+module sensormesh
 
 go 1.20
 
