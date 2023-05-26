@@ -16,17 +16,20 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"sensormesh/cmd/shared"
+	"strings"
 	"time"
 
 	orbitdb "berty.tech/go-orbit-db"
 	"berty.tech/go-orbit-db/iface"
 	client "github.com/ipfs/go-ipfs-http-client"
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
@@ -35,6 +38,8 @@ var (
 	ctx       context.Context
 	cancel    context.CancelFunc
 	storeName string
+	logbuf    bytes.Buffer
+	logger    zerolog.Logger
 	logStore  iface.EventLogStore
 )
 
@@ -98,30 +103,48 @@ initialize IPFS's daemon`,
 		if err != nil {
 			panic(fmt.Errorf("failed to get log store: %s", err))
 		}
+
+		// Initialize zerolog logger
+		logger = zerolog.New(&logbuf).With().Timestamp().Logger()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		go func() {
 			defer cancel()
+			lastTriggerTime := time.Now().Unix()
+			currentTime := lastTriggerTime
 			for {
-				// TESTING - Using random value like a timestamp
-				// TODO - Implement zerolog to write to file read values
-				value := []byte(shared.ViperConfs.GetString("name") + " " + time.Now().String())
+				currentTime = time.Now().Unix()
+
+				// whisper every 10 seconds
+				if currentTime - lastTriggerTime >= 10 {
+					lastTriggerTime = currentTime
+
+					// TODO - Get cam from Vanetza, use .RawJSON
+					logger.Info().
+						Str("type", "whisper").
+						Str("name", shared.ViperConfs.GetString("name")).
+						Int64("time", currentTime).
+						Send()
+					fmt.Println(strings.TrimRight(logbuf.String(), "\n"))
+				}
 
 				// Posting new value to the log store
-				_, err := logStore.Add(ctx, value)
+				_, err := logStore.Add(ctx, logbuf.Bytes())
 				if err != nil {
 					panic(fmt.Errorf("failed to put in log store: %s", err))
 				}
 
 				//Reading the last value inserted in the log store
-				op, err := logStore.List(ctx, &iface.StreamOptions{})
+				//op, err := logStore.List(ctx, &iface.StreamOptions{})
+				_, err = logStore.List(ctx, &iface.StreamOptions{})
 				if err != nil {
 					panic(fmt.Errorf("failed to get list from log store: %s", err))
 				}
 
-				fmt.Println(string(op[0].GetValue()))
+				// TODO - Write logs to file
 
-				time.Sleep(2*time.Second)
+				// Reset reading buffer
+				logbuf.Reset()
 			}
 		}()
 		c := make(chan os.Signal, 1)
