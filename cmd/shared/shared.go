@@ -18,6 +18,7 @@ var (
 	NodeName       string
 	ViperConfs     = viper.New()
 	ConfigFilePath = filepath.Join(GetUserHomeDir(), ".sensormesh", "config.yaml")
+	LogFilePath    = filepath.Join(GetUserHomeDir(), ".sensormesh", "sensormesh.log")
 )
 
 func GetUserHomeDir() string {
@@ -90,6 +91,7 @@ func LoadConfigurationFromFile() {
 		file *os.File
 		err  error
 	)
+
 	exists, _ := Exists(ConfigFilePath)
 	if !exists {
 		err = os.MkdirAll(filepath.Dir(ConfigFilePath), 0700)
@@ -99,6 +101,13 @@ func LoadConfigurationFromFile() {
 		file, err = os.Create(ConfigFilePath)
 		if err != nil {
 			panic(fmt.Errorf("error generating config file: %v", err))
+		}
+		file.Write([]byte(""))
+		file.Close()
+
+		file, err = os.Create(LogFilePath)
+		if err != nil {
+			panic(fmt.Errorf("error generating log file: %v", err))
 		}
 		defer file.Close()
 		file.Write([]byte(""))

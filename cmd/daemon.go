@@ -19,9 +19,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"sensormesh/cmd/shared"
 	"strings"
 	"time"
@@ -43,13 +45,71 @@ var (
 	logStore  iface.EventLogStore
 )
 
+func publish() {
+	defer cancel()
+	lastTriggerTime := time.Now().Unix()
+	currentTime := lastTriggerTime
+	for {
+		currentTime = time.Now().Unix()
+
+		// whisper every 10 seconds
+		if currentTime-lastTriggerTime >= 10 {
+			lastTriggerTime = currentTime
+
+			// TODO - Get cam from Vanetza, use .RawJSON
+			logger.Info().
+				Str("type", "whisper").
+				Str("name", shared.ViperConfs.GetString("name")).
+				Int64("time", currentTime).
+				Send()
+			//fmt.Println(strings.TrimRight(logbuf.String(), "\n"))
+		}
+
+		// Posting new value to the log store
+		_, err := logStore.Add(ctx, logbuf.Bytes())
+		if err != nil {
+			panic(fmt.Errorf("failed to put in log store: %s", err))
+		}
+
+		// Reset reading buffer
+		logbuf.Reset()
+	}
+}
+
+func subscribe() {
+	defer cancel()
+	var lastValue []byte
+	file, err := os.OpenFile(shared.ViperConfs.GetString("logfile"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(fmt.Errorf("failed to open log file: %s", err))
+	}
+	log.SetOutput(file)
+	defer file.Close()
+	fmt.Println("[+] Writing log to " + shared.ViperConfs.GetString("logfile"))
+	for {
+		//Reading the last value inserted in the log store
+		op, err := logStore.List(ctx, &iface.StreamOptions{})
+		if err != nil {
+			panic(fmt.Errorf("failed to get list from log store: %s", err))
+		}
+
+		if len(op) > 0 && !reflect.DeepEqual(op[0].GetValue(), lastValue) {
+			//Write to log file if the new value is different from the last.
+			//Since we are using timestamps, all correct messages will be
+			//different, so this method becomes reliable in avoiding
+			//incorrect or duplicate messages
+			log.Println(strings.TrimRight(string(op[0].GetValue()), "\n"))
+		}
+	}
+}
+
 // daemonCmd represents the daemon command
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
 	Short: "Run a OrbitDB sensor logger",
 	Long: `'sensormesh daemon' runs a persistent sensormesh daemon that can
 query specified sensor and log their responses to a OrbitDB
-log file, that will be shared between node in a same IPFS
+log file, that will be shared between nodes in a same IPFS
 private network.
 
 The daemon will start by first configuring the current
@@ -62,7 +122,7 @@ initialize IPFS's daemon`,
 			panic(fmt.Errorf("configuration file not set. Try running 'sensormesh init' first: %s", err))
 		}
 
-		// Load configurations from configurations file, if non existing, a new will be created
+		// Load configurations from the configurations file, if non-existing, a new one will be created
 		shared.LoadConfigurationFromFile()
 
 		// Connecting to local IPFS node API
@@ -70,7 +130,7 @@ initialize IPFS's daemon`,
 		if err != nil {
 			panic(fmt.Errorf("failed to connect to local IPFS API. IPFS daemon must be running with '--enable-pubsub-experiment': %s", err))
 		}
-		fmt.Println("Connecting to " + shared.ViperConfs.GetString("name") + "'s local IPFS API at " + shared.LocalIPFSApiAddress())
+		fmt.Println("[+] Connecting to " + shared.ViperConfs.GetString("name") + "'s local IPFS API at " + shared.LocalIPFSApiAddress())
 
 		ctx, cancel = context.WithCancel(context.Background())
 
@@ -83,20 +143,22 @@ initialize IPFS's daemon`,
 		// Search for an existing database with the provided name
 		foundAddress, err := db.DetermineAddress(ctx, storeName, "eventlog", &orbitdb.DetermineAddressOptions{})
 		if err != nil { // Creates a new store with a given name if none is found
-			fmt.Println("No database found with name " + storeName + ". Creating a new one with said name ...")
+			fmt.Println("[⚠️] No database found with name " + storeName + ". Creating a new one with said name ...")
 			dbStore, err = db.Create(ctx, storeName, "eventlog", &orbitdb.CreateDBOptions{})
 			if err != nil {
 				panic(fmt.Errorf("failed to create new db store: %s", err))
 			}
 			foundAddress = dbStore.Address()
 		} else if foundAddress != nil { // If store is found, connects to it
-			fmt.Println("Database found with name " + storeName + ". Connecting ...")
+			fmt.Println("[🗸] Database found with name " + storeName + ". Connecting ...")
 			dbStore, err = db.Open(ctx, foundAddress.String(), &orbitdb.CreateDBOptions{})
 			if err != nil {
 				panic(fmt.Errorf("failed to connect to db store: %s", err))
 			}
 		}
-		fmt.Printf("%s store address: %s\n", storeName, foundAddress.String())
+		fmt.Printf("[+] %s store address: %s\n", storeName, foundAddress.String())
+		shared.ViperConfs.Set("orbitdb.storename", storeName)
+		shared.ViperConfs.Set("orbitdb.storeaddress", foundAddress.String())
 
 		// Retrieving datastore of type log
 		logStore, err = db.Log(ctx, dbStore.Address().String(), &orbitdb.CreateDBOptions{})
@@ -106,51 +168,27 @@ initialize IPFS's daemon`,
 
 		// Initialize zerolog logger
 		logger = zerolog.New(&logbuf).With().Timestamp().Logger()
+
+		err = shared.ViperConfs.WriteConfig()
+		if err != nil {
+			panic(fmt.Errorf("error updating config file: %v", err))
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		go func() {
-			defer cancel()
-			lastTriggerTime := time.Now().Unix()
-			currentTime := lastTriggerTime
-			for {
-				currentTime = time.Now().Unix()
+		// Initiate reading and writing to the database as a multi-threaded processes
+		go publish()
+		go subscribe()
 
-				// whisper every 10 seconds
-				if currentTime - lastTriggerTime >= 10 {
-					lastTriggerTime = currentTime
+		fmt.Println("[+] Press Ctrl+c to stop daemon")
 
-					// TODO - Get cam from Vanetza, use .RawJSON
-					logger.Info().
-						Str("type", "whisper").
-						Str("name", shared.ViperConfs.GetString("name")).
-						Int64("time", currentTime).
-						Send()
-					fmt.Println(strings.TrimRight(logbuf.String(), "\n"))
-				}
+		// Capture SIGINT
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
 
-				// Posting new value to the log store
-				_, err := logStore.Add(ctx, logbuf.Bytes())
-				if err != nil {
-					panic(fmt.Errorf("failed to put in log store: %s", err))
-				}
+		// Wait for either WaitGroup or interrupt signal
+		<-sigint
 
-				//Reading the last value inserted in the log store
-				//op, err := logStore.List(ctx, &iface.StreamOptions{})
-				_, err = logStore.List(ctx, &iface.StreamOptions{})
-				if err != nil {
-					panic(fmt.Errorf("failed to get list from log store: %s", err))
-				}
-
-				// TODO - Write logs to file
-
-				// Reset reading buffer
-				logbuf.Reset()
-			}
-		}()
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
-		<-c
-		fmt.Println("Interrupt signal received, saving configurations and terminating...")
+		fmt.Println("\n[!] Interrupt signal received, terminating...")
 		err := shared.ViperConfs.WriteConfig()
 		if err != nil {
 			panic(fmt.Errorf("error updating config file: %v", err))
