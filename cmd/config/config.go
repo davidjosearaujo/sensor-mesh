@@ -16,15 +16,36 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
+	"os"
+	"sensormesh/cmd/shared"
+	"strings"
+
 	"github.com/spf13/cobra"
 )
 
 // configCmd represents the config command
 var ConfigCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Config is a palette that contains consult and editing of configuration file commands",
+	Short: "Config allows you to see your configurations and edit them",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		shared.LoadConfigurationFromFile()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		switch len(args){
+			case 2: shared.ViperConfs.Set(args[0],args[1])
+			case 1: fmt.Println(shared.ViperConfs.Get(args[0]))
+			default:
+				contents, err := os.ReadFile(shared.ConfigFilePath)
+				if err != nil {
+					fmt.Println("File reading error", err)
+					return
+				}
+				fmt.Println(strings.TrimRight(string(contents), "\n"))
+		}
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		shared.ViperConfs.WriteConfig()
 	},
 }
 
