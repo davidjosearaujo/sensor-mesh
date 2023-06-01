@@ -29,7 +29,9 @@ var restoreCmd = &cobra.Command{
 	Short: "Reverts to factory configuration file",
 	Run: func(cmd *cobra.Command, args []string) {
 		shared.ConfigFilePath = filepath.Join(shared.GetUserHomeDir(), ".sensormesh", "config.yaml")
+		shared.LogFilePath = filepath.Join(shared.GetUserHomeDir(), ".sensormesh", "sensormesh.log")
 		os.Remove(shared.ConfigFilePath)
+		os.Remove(shared.LogFilePath)
 		shared.LoadConfigurationFromFile()
 	},
 }
