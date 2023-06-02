@@ -4,7 +4,7 @@ Copyright © 2023 David Araújo <davidaraujo98@github.io>
 package sensor
 
 import (
-	"sensormesh/cmd/shared"
+	"github.com/DavidAraujo98/sensor-mesh/cmd/shared"
 
 	"github.com/spf13/cobra"
 )
