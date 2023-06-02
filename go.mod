@@ -1,4 +1,4 @@
-module sensormesh
+module github.com/DavidAraujo98/sensor-mesh
 
 go 1.20
 
