@@ -1,0 +1,20 @@
+name: SensorMeshNode
+
+# List of sensors
+sensors:
+    - name: "Sensor 1"
+      baud: 9600
+      parity: None
+      port: /dev/ttyUSB0
+      size: 8
+      stop: Stop1
+      interval: 60
+    - name: "Sensor 2"
+      baud: 124000
+      parity: Even
+      port: /dev/ttyUSB1
+      size: 7
+      stop: Stop2
+      interval: 30
+
+logfile: "~/.sensormesh/sensormesh.log"

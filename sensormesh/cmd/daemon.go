@@ -60,7 +60,6 @@ func publish() {
 			logger.Info().
 				Str("type", "whisper").
 				Str("name", shared.ViperConfs.GetString("name")).
-				Int64("time", currentTime).
 				Send()
 
 			// Posting new value to the log store

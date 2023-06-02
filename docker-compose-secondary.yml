@@ -1,0 +1,44 @@
+version: "3.3"
+
+networks:
+    IPFSTest:
+        ipam:
+            config:
+                - subnet: "11.11.0.0/16"
+
+services:
+    node02:
+        container_name: vfci02
+        privileged: true
+        image: ${TARGET_IMAGE_NAME}
+        networks:
+            IPFSTest:
+                ipv4_address: 11.11.0.20
+        environment:
+            - VEHICLE_NAME=vfci02
+            - FIRESTATION_ID=0101
+            - EVENT_ID=1234
+            - INTF_NAME=eth0
+            - SWARM_KEY=${SWARM_KEY}
+            - STORE=${STORE}
+        ports:
+            - "40020:4001/tcp"
+            - "40020:4001/udp"
+
+    node03:
+        container_name: vfci03
+        privileged: true
+        image: ${TARGET_IMAGE_NAME}
+        networks:
+            IPFSTest:
+                ipv4_address: 11.11.0.30
+        environment:
+            - VEHICLE_NAME=vfci03
+            - FIRESTATION_ID=0102
+            - EVENT_ID=1234
+            - INTF_NAME=eth0
+            - SWARM_KEY=${SWARM_KEY}
+            - STORE=${STORE}
+        ports:
+            - "40003:4001/tcp"
+            - "40003:4001/udp"

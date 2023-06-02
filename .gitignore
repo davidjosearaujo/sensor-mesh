@@ -1,0 +1,5 @@
+*.o
+/nodes/swarm.key
+*.exe
+*sensormesh
+*.vscode

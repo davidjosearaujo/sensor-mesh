@@ -1,0 +1,26 @@
+version: "3.3"
+
+networks:
+    IPFSTest:
+        ipam:
+            config:
+                - subnet: "11.11.0.0/16"
+
+services:
+    node01:
+        container_name: vcot01
+        privileged: true
+        image: ${TARGET_IMAGE_NAME}
+        networks:
+            IPFSTest:
+                ipv4_address: 11.11.0.10
+        environment:
+            - VEHICLE_NAME=vcot01
+            - FIRESTATION_ID=0122
+            - EVENT_ID=1234
+            - INTF_NAME=eth0
+            - SWARM_KEY=${SWARM_KEY}
+            - STORE=${STORE}
+        ports:
+            - "40010:4001/tcp"
+            - "40010:4001/udp"

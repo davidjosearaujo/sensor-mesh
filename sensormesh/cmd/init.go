@@ -61,7 +61,7 @@ func createSwarmKeyFile() {
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize local FireMesh configuration",
+	Short: "Initialize local SensorMesh configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Checking if IPFS configs exist
 		// TODO FEATURE - Allow to user to specify the IPFS repo path
@@ -88,8 +88,8 @@ var initCmd = &cobra.Command{
 }
 
 func init() {
-	initCmd.Flags().StringVar(&swarmkey, "swarmkey", "", "IPFS private network swarm key, if none provided, creates a new one")
-	initCmd.Flags().StringVar(&nodename, "nodename", "SensorMeshNode", "IPFS private network swarm key, if none provided, creates a new one")
+	initCmd.Flags().StringVar(&swarmkey, "swarmkey", "", "IPFS private network swarm key, if none provided, creates a new one.")
+	initCmd.Flags().StringVar(&nodename, "nodename", "SensorMeshNode", "Node name")
 	initCmd.Flags().StringVar(&shared.LogFilePath, "logfile", shared.LogFilePath, "Path destination for logfile, Defaults to '~/.sensormesh/sensormesh.log'")
 	rootCmd.AddCommand(initCmd)
 }
