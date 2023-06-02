@@ -18,7 +18,7 @@ package config
 import (
 	"fmt"
 	"os"
-	"github.com/DavidAraujo98/sensor-mesh//cmd/shared"
+	"github.com/DavidAraujo98/sensor-mesh/cmd/shared"
 	"strings"
 
 	"github.com/spf13/cobra"
