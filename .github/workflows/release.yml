@@ -1,8 +1,10 @@
 name: Release binaries
 
 on:
+  workflow_dispatch:
   release:
-    types: [created]
+      types: 
+        - created
 
 jobs:
   releases-matrix:
