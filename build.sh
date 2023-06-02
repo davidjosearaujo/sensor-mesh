@@ -15,7 +15,7 @@ if [[ $2 == "--build" ]]; then
     cd sensormesh/
     OUT=$(go build -o ../nodes/sensormesh main.go)
     if [[ $OUT != "" ]]; then
-        echo -e "[⚠️] sensormesh compiling error !"
+        echo -e "[!] sensormesh compiling error !"
     fi
     echo -e "[🗸] SensorMesh binary compiled!"
     cd ..
@@ -44,7 +44,7 @@ if [[ $2 == "--up" || $3 == "--up" ]]; then
     for LID in $(docker container ls -q); do
         STORE=$(docker exec $LID sensormesh config orbitdb.storeaddress)
         if [[ $STORE == "" ]]; then
-            echo -e "[⚠️] Node failed to run sensormesh!"
+            echo -e "[!] Node failed to run sensormesh!"
             return
         fi
         echo -e "[🗸] Store address created by first vehicle: $STORE"
