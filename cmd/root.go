@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"os"
-	"github.com/DavidAraujo98/sensor-mesh/cmd/config"
-	"github.com/DavidAraujo98/sensor-mesh/cmd/sensor"
+	"sensormesh/cmd/config"
+	"sensormesh/cmd/sensor"
 
 	"github.com/spf13/cobra"
 )

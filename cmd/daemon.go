@@ -24,7 +24,7 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
-	"github.com/DavidAraujo98/sensor-mesh/cmd/shared"
+	"sensormesh/cmd/shared"
 	"strings"
 	"time"
 

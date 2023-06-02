@@ -1,10 +1,10 @@
 /*
 Copyright © 2023 David Araújo <davidaraujo98.github.io>
 */
-package sensormesh
+package main
 
 import (
-	"github.com/DavidAraujo98/sensor-mesh/cmd"
+	"sensormesh/cmd"
 )
 
 func main() {

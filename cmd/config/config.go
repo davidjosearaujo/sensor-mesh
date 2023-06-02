@@ -18,7 +18,7 @@ package config
 import (
 	"fmt"
 	"os"
-	"github.com/DavidAraujo98/sensor-mesh/cmd/shared"
+	"sensormesh/cmd/shared"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -32,16 +32,18 @@ var ConfigCmd = &cobra.Command{
 		shared.LoadConfigurationFromFile()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		switch len(args){
-			case 2: shared.ViperConfs.Set(args[0],args[1])
-			case 1: fmt.Println(shared.ViperConfs.Get(args[0]))
-			default:
-				contents, err := os.ReadFile(shared.ConfigFilePath)
-				if err != nil {
-					fmt.Println("File reading error", err)
-					return
-				}
-				fmt.Println(strings.TrimRight(string(contents), "\n"))
+		switch len(args) {
+		case 2:
+			shared.ViperConfs.Set(args[0], args[1])
+		case 1:
+			fmt.Println(shared.ViperConfs.Get(args[0]))
+		default:
+			contents, err := os.ReadFile(shared.ConfigFilePath)
+			if err != nil {
+				fmt.Println("File reading error", err)
+				return
+			}
+			fmt.Println(strings.TrimRight(string(contents), "\n"))
 		}
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"github.com/DavidAraujo98/sensor-mesh/cmd/shared"
+	"sensormesh/cmd/shared"
 
 	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/spf13/cobra"
