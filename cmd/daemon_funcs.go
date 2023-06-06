@@ -47,7 +47,10 @@ func publish() {
 		}
 
 		// Publishing MQTT messages to log store
-		for _, firstMessage := range MQTTmessageQueue {
+		for len(MQTTmessageQueue) >= 1 {
+
+			firstMessage := MQTTmessageQueue[0]
+
 			// Convert map to JSON []byte string
 			jsonMessage, err := json.Marshal(firstMessage)
 			if err != nil {
@@ -59,13 +62,9 @@ func publish() {
 			if err != nil {
 				panic(fmt.Errorf("failed to put MQTT message in log store: %s", err))
 			}
-		}
 
-		if len(MQTTmessageQueue) == 2 {
-			fmt.Println("b", len(MQTTmessageQueue))
+			MQTTmessageQueue = MQTTmessageQueue[1:]
 		}
-
-		MQTTmessageQueue = []map[string]string{}
 	}
 }
 
