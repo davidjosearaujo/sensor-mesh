@@ -1,9 +1,10 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 David Araújo <davidaraujo98@github.io>
 */
 package channel
 
 import (
+	"fmt"
 	"sensormesh/cmd/utils"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,7 @@ var connectCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.AddChannel(_brokerUrl, _topics)
+		fmt.Println("[!] Connected to channel successfully! If SensorMesh daemon running, it must be rebooted to take effect!")
 	},
 }
 

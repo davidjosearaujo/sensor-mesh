@@ -27,11 +27,11 @@ func AddSensor(name string,
 
 	// Check if list is empty
 	sensorList := []interface{}{}
-	if  ViperConfs.Get("sensors") != nil {
+	if ViperConfs.IsSet("sensors") {
 		// Initialize "channels" key with an empty slice
 		sensorList = ViperConfs.Get("sensors").([]interface{})
 	}
-	
+
 	sensorList = append(sensorList, newSensor)
 	ViperConfs.Set("sensors", sensorList)
 	err := ViperConfs.WriteConfig()

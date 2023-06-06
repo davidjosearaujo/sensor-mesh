@@ -4,6 +4,7 @@ Copyright © 2023 David Araújo <davidaraujo98@github.io>
 package sensor
 
 import (
+	"fmt"
 	"sensormesh/cmd/utils"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,7 @@ var removeCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.RemoveSensor(_name)
+		fmt.Println("[!] Sensor removed successfully!")
 	},
 }
 

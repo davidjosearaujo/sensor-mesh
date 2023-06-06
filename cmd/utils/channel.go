@@ -16,7 +16,7 @@ func AddChannel(broker string, topics []string) {
 
 	// Check if list is empty
 	channelList := []interface{}{}
-	if ViperConfs.Get("channels") != nil {
+	if ViperConfs.IsSet("channels") {
 		// Initialize "channels" key with an empty slice
 		channelList = ViperConfs.Get("channels").([]interface{})
 	}

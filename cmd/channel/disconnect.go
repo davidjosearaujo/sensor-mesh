@@ -1,9 +1,10 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+Copyright © 2023 David Araújo <davidaraujo98@github.io>
 */
 package channel
 
 import (
+	"fmt"
 	"sensormesh/cmd/utils"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,11 @@ var disconnectCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.DisconnectChannelTopic(_brokerUrl, _topics)
+		if len(_topics) > 0 {
+			fmt.Println("[!] Unsubscribed from channel successfully! If SensorMesh daemon running, it must be rebooted to take effect!")
+			return
+		}
+		fmt.Println("[!] Disconnected from channel successfully! If SensorMesh daemon running, it must be rebooted to take effect!")
 	},
 }
 
