@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"os"
+	"sensormesh/cmd/channel"
 	"sensormesh/cmd/config"
 	"sensormesh/cmd/sensor"
 
@@ -32,5 +33,6 @@ func init() {
 	rootCmd.AddCommand(
 		sensor.SensorCmd,
 		config.ConfigCmd,
+		channel.ChannelCmd,
 	)
 }

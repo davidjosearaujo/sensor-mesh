@@ -1,24 +1,12 @@
 /*
 Copyright © 2023 David Araújo <davidaraujo98@github.io>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 */
 package config
 
 import (
 	"fmt"
 	"os"
-	"sensormesh/cmd/shared"
+	"sensormesh/cmd/utils"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,16 +17,16 @@ var ConfigCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Config allows you to see your configurations and edit them",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		shared.LoadConfigurationFromFile()
+		utils.LoadConfigurationFromFile()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		switch len(args) {
 		case 2:
-			shared.ViperConfs.Set(args[0], args[1])
+			utils.ViperConfs.Set(args[0], args[1])
 		case 1:
-			fmt.Println(shared.ViperConfs.Get(args[0]))
+			fmt.Println(utils.ViperConfs.Get(args[0]))
 		default:
-			contents, err := os.ReadFile(shared.ConfigFilePath)
+			contents, err := os.ReadFile(utils.ConfigFilePath)
 			if err != nil {
 				fmt.Println("File reading error", err)
 				return
@@ -47,7 +35,7 @@ var ConfigCmd = &cobra.Command{
 		}
 	},
 	PostRun: func(cmd *cobra.Command, args []string) {
-		shared.ViperConfs.WriteConfig()
+		utils.ViperConfs.WriteConfig()
 	},
 }
 

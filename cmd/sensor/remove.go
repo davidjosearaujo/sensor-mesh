@@ -4,7 +4,7 @@ Copyright © 2023 David Araújo <davidaraujo98@github.io>
 package sensor
 
 import (
-	"sensormesh/cmd/shared"
+	"sensormesh/cmd/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -14,8 +14,11 @@ var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Short:   "Remove a sensor",
 	Example: "sensormesh sensor remove --name=\"humidity\"",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		utils.LoadConfigurationFromFile()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		shared.RemoveSensor(_name)
+		utils.RemoveSensor(_name)
 	},
 }
 

@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	berty.tech/go-orbit-db v1.22.0
+	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/ipfs/go-ipfs-api v0.6.0
 	github.com/ipfs/go-ipfs-http-client v0.5.0
 	github.com/rs/zerolog v1.29.1
@@ -26,6 +27,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -100,6 +102,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.8.0 // indirect

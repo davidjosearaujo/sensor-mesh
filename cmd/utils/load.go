@@ -1,7 +1,7 @@
 /*
 Copyright © 2023 David Araújo <davidaraujo98@github.io>
 */
-package shared
+package utils
 
 import (
 	"fmt"
@@ -15,7 +15,6 @@ import (
 )
 
 var (
-	NodeName       string
 	ViperConfs     = viper.New()
 	ConfigFilePath = filepath.Join(GetUserHomeDir(), ".sensormesh", "config.yaml")
 	LogFilePath    = filepath.Join(GetUserHomeDir(), ".sensormesh", "sensormesh.log")
@@ -27,55 +26,6 @@ func GetUserHomeDir() string {
 		panic(fmt.Errorf("error getting user home directory: %v", err))
 	}
 	return usr.HomeDir
-}
-
-func AddSensor(name string,
-	port string,
-	baud int,
-	size int,
-	parity string,
-	stop string,
-	interval int) {
-
-	newSensor := map[string]interface{}{
-		"name":     name,
-		"baud":     baud,
-		"parity":   parity,
-		"port":     port,
-		"size":     size,
-		"stop":     stop,
-		"interval": interval,
-	}
-
-	sensorList := ViperConfs.Get("sensors").([]interface{})
-	sensorList = append(sensorList, newSensor)
-	ViperConfs.Set("sensors", sensorList)
-	err := ViperConfs.WriteConfig()
-	if err != nil {
-		panic(fmt.Errorf("error updating config file: %v", err))
-	}
-}
-
-func RemoveSensor(name string) {
-	if ViperConfs.Get("sensors") == nil {
-		panic(fmt.Errorf("there are no sensors to remove"))
-	}
-
-	sensorList := ViperConfs.Get("sensors").([]interface{})
-	updatedSensors := make([]interface{}, 0, len(sensorList))
-
-	for _, sensor := range sensorList {
-		sensorMap := sensor.(map[string]interface{})
-		if sensorMap["name"].(string) != name {
-			updatedSensors = append(updatedSensors, sensor)
-		}
-	}
-
-	ViperConfs.Set("sensors", updatedSensors)
-	err := ViperConfs.WriteConfig()
-	if err != nil {
-		panic(fmt.Errorf("error updating config file: %v", err))
-	}
 }
 
 func Exists(path string) (bool, error) {

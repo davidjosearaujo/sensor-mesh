@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sensormesh/cmd/shared"
+	"sensormesh/cmd/utils"
 
 	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/spf13/cobra"
@@ -41,7 +41,7 @@ func createSwarmKeyFile() {
 		file *os.File
 		err  error
 	)
-	exists, _ := shared.Exists(swarmKeyFilePath)
+	exists, _ := utils.Exists(swarmKeyFilePath)
 	if !exists {
 		err = os.MkdirAll(filepath.Dir(swarmKeyFilePath), 0700)
 		if err != nil {
@@ -66,7 +66,7 @@ var initCmd = &cobra.Command{
 		// Checking if IPFS configs exist
 		// TODO FEATURE - Allow to user to specify the IPFS repo path
 		location := filepath.Join(os.Getenv("IPFS_PATH"), "config")
-		_, err := shared.Exists(filepath.Join(os.Getenv("IPFS_PATH"), "config"))
+		_, err := utils.Exists(filepath.Join(os.Getenv("IPFS_PATH"), "config"))
 		if err != nil {
 			panic(fmt.Errorf("configuration file not set at "+location+". Try running 'ipfs init' first: %s", err))
 		}
@@ -75,21 +75,21 @@ var initCmd = &cobra.Command{
 		createSwarmKeyFile()
 
 		// Load sensormesh configurations to Viper
-		shared.LoadConfigurationFromFile()
+		utils.LoadConfigurationFromFile()
 
 		// Set the node's initial configurati
-		shared.ViperConfs.Set("name", nodename)
-		shared.ViperConfs.Set("logfile", shared.LogFilePath)
-		shared.ViperConfs.Set("swarmkey", swarmkey)
-		shared.ViperConfs.WriteConfig()
+		utils.ViperConfs.Set("name", nodename)
+		utils.ViperConfs.Set("logfile", utils.LogFilePath)
+		utils.ViperConfs.Set("swarmkey", swarmkey)
+		utils.ViperConfs.WriteConfig()
 
-		fmt.Println("[+] New sensormesh node " + shared.ViperConfs.GetString("name") + " created !")
+		fmt.Println("[+] New sensormesh node " + utils.ViperConfs.GetString("name") + " created !")
 	},
 }
 
 func init() {
 	initCmd.Flags().StringVar(&swarmkey, "swarmkey", "", "IPFS private network swarm key, if none provided, creates a new one.")
 	initCmd.Flags().StringVar(&nodename, "nodename", "SensorMeshNode", "Node name")
-	initCmd.Flags().StringVar(&shared.LogFilePath, "logfile", shared.LogFilePath, "Path destination for logfile, Defaults to '~/.sensormesh/sensormesh.log'")
+	initCmd.Flags().StringVar(&utils.LogFilePath, "logfile", utils.LogFilePath, "Path destination for logfile, Defaults to '~/.sensormesh/sensormesh.log'")
 	rootCmd.AddCommand(initCmd)
 }
