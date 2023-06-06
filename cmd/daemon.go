@@ -91,26 +91,29 @@ initialize IPFS's daemon`,
 		utils.ViperConfs.Set("orbitdb.storeaddress", logStore.Address().String())
 
 		// Set up MQTT clients
-		for _, channel := range utils.ViperConfs.Get("channels").([]interface{}) {
-			channelMap := channel.(map[string]interface{})
-			opts := MQTT.NewClientOptions()
-			opts.AddBroker(channelMap["broker"].(string))
-			opts.SetClientID(utils.ViperConfs.GetString("name"))
+		if utils.ViperConfs.IsSet("channels") {
+			// Initialize "channels" key with an empty slice
+			for _, channel := range utils.ViperConfs.Get("channels").([]interface{}) {
+				channelMap := channel.(map[string]interface{})
+				opts := MQTT.NewClientOptions()
+				opts.AddBroker(channelMap["broker"].(string))
+				opts.SetClientID(utils.ViperConfs.GetString("name"))
 
-			// Create and start a new MQTT client
-			client := MQTT.NewClient(opts)
-			if token := client.Connect(); token.Wait() && token.Error() != nil {
-				panic(fmt.Errorf("error connecting to MQTT: %v", token.Error()))
-			}
-			fmt.Printf("[!] Connected to %s MQTT channel with client ID of : %s\n", channelMap["broker"].(string), utils.ViperConfs.GetString("name"))
-
-			// Subscribe to the topic
-			for _, topic := range channelMap["topics"].([]interface{}) {
-				// Subscribe to the topic
-				if token := client.Subscribe(topic.(string), 0, onMessageReceived); token.Wait() && token.Error() != nil {
-					panic(fmt.Errorf("error subscribing to topic in MQTT: %v", token.Error()))
+				// Create and start a new MQTT client
+				client := MQTT.NewClient(opts)
+				if token := client.Connect(); token.Wait() && token.Error() != nil {
+					panic(fmt.Errorf("error connecting to MQTT: %v", token.Error()))
 				}
-				fmt.Printf("[+] Subscribed to %s MQTT topic\n", topic.(string))
+				fmt.Printf("[!] Connected to %s MQTT channel with client ID of : %s\n", channelMap["broker"].(string), utils.ViperConfs.GetString("name"))
+
+				// Subscribe to the topic
+				for _, topic := range channelMap["topics"].([]interface{}) {
+					// Subscribe to the topic
+					if token := client.Subscribe(topic.(string), 0, onMessageReceived); token.Wait() && token.Error() != nil {
+						panic(fmt.Errorf("error subscribing to topic in MQTT: %v", token.Error()))
+					}
+					fmt.Printf("[+] Subscribed to %s MQTT topic\n", topic.(string))
+				}
 			}
 		}
 
