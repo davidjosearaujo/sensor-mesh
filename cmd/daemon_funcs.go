@@ -31,24 +31,17 @@ func publish() {
 		// whisper every 10 seconds
 		if currentTime-lastTriggerTime >= 30 {
 			lastTriggerTime = currentTime
+
 			logger.Info().
 				Str("type", "whisper").
 				Str("name", utils.ViperConfs.GetString("name")).
 				Send()
 
-			// Posting new value to the log store
-			_, err := logStore.Add(ctx, logbuf.Bytes())
-			if err != nil {
-				panic(fmt.Errorf("failed to put whisper in log store: %s", err))
-			}
-
-			// Reset reading buffer
-			logbuf.Reset()
+			publishLog()
 		}
 
 		// Publishing MQTT messages to log store
 		for len(MQTTmessageQueue) >= 1 {
-
 			firstMessage := MQTTmessageQueue[0]
 
 			// Convert map to JSON []byte string
@@ -57,11 +50,13 @@ func publish() {
 				panic(fmt.Errorf("error converting MQTT message to json: %s", err))
 			}
 
-			// Posting new value to the log store
-			_, err = logStore.Add(ctx, jsonMessage)
-			if err != nil {
-				panic(fmt.Errorf("failed to put MQTT message in log store: %s", err))
-			}
+			logger.Info().
+				Str("type", "mqtt").
+				Str("name", utils.ViperConfs.GetString("name")).
+				Str("message", string(jsonMessage)).
+				Send()
+
+			publishLog()
 
 			MQTTmessageQueue = MQTTmessageQueue[1:]
 		}
@@ -96,6 +91,18 @@ func subscribe() {
 	}
 }
 
+func publishLog() {
+	// Posting new value to the log store
+	_, err := logStore.Add(ctx, logbuf.Bytes())
+	if err != nil {
+		panic(fmt.Errorf("failed to put whisper in log store: %s", err))
+	}
+
+	// Reset reading buffer
+	logbuf.Reset()
+}
+
+
 func onMessageReceived(client MQTT.Client, message MQTT.Message) {
 	clientOptions := client.OptionsReader()
 
@@ -103,10 +110,6 @@ func onMessageReceived(client MQTT.Client, message MQTT.Message) {
 		"sender":  clientOptions.ClientID(),
 		"topic":   message.Topic(),
 		"message": string(message.Payload()),
-	}
-
-	if len(MQTTmessageQueue) == 2 {
-		fmt.Println("hi", len(MQTTmessageQueue))
 	}
 
 	MQTTmessageQueue = append(MQTTmessageQueue, newMessage)
