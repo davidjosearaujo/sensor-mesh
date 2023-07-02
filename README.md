@@ -10,7 +10,7 @@
 
 SensorMesh allows you to direct output from serial devices and internal services into a distributed peer-to-peer database on IPFS.
 
-SensorMesh is built as a layer of abstraction and service compatibility for [OrbitDB](https://github.com/orbitdb/orbit-db/). It is built in [Go](https://go.dev/) and uses the [go-orbit-db](https://github.com/berty/go-orbit-db) module developed by the folks at [Berty](https://berty.tech/). Check all the awesome people out!
+SensorMesh is built as a layer of abstraction and service compatibility for [OrbitDB](https://github.com/orbitdb/orbit-db/). It is built in [Go](https://go.dev/) and uses the [go-orbit-db](https://github.com/berty/go-orbit-db) module developed by the folks at [Berty](https://berty.tech/). Check all these awesome projects out!
 
 Imagine a factory floor with multiple independent nodes, each with its sensors and services. With SensorMesh, each node is capable of publishing its data to a distributed P2P log database, accessible from any node at any time and with a loss of connection awareness between nodes.
 
