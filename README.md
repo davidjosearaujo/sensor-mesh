@@ -4,8 +4,6 @@
   <img src="doc/branding/sensormesh-logo.png" width="360" />
 </p>
 
-<br>
-
 [![Go](https://github.com/davidjosearaujo/sensor-mesh/actions/workflows/go.yml/badge.svg)](https://github.com/davidjosearaujo/sensor-mesh/actions/workflows/go.yml) ![GitHub tag (latest SemVer pre-release)](https://img.shields.io/github/v/tag/davidjosearaujo/sensor-mesh?label=release)
 
 SensorMesh allows you to direct output from serial devices and internal services into a distributed peer-to-peer database on IPFS.
@@ -14,17 +12,13 @@ SensorMesh is built as a layer of abstraction and service compatibility for [Orb
 
 Imagine a factory floor with multiple independent nodes, each with its sensors and services. With SensorMesh, each node is capable of publishing its data to a distributed P2P log database, accessible from any node at any time and with a loss of connection awareness between nodes.
 
-<br>
-
 # Table of Contents
 
 - [Install](#install)
   - [GLIBC error](#glibc-error)
-  - [Build](#build)
+- [Build](#build)
 - [Configuration](#configurations)
 - [Usage](#usage)
-
-<br>
 
 # Install
 
@@ -67,8 +61,6 @@ sensormesh: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_x.xx' not found (req
 ``` 
 don't worry, you'll just have to **compile SensorMesh** yourself, for that, follow the instructions in the [Build](#build) section to see how.
 
-<br>
-
 # Build
 
 If you prefer to compile SensorMesh yourself or you ran into _GLIBC_ errors, run the following command.
@@ -81,13 +73,9 @@ chmod +x ./build.sh && \
 
 _The build script will request **sudo** access to move the generated binary to **/usr/local/bin** which should already be in your PATH env variable. If you choose not to provide sudo access, the binary will remain in the **current directory**._
 
-<br>
-
 # Configurations
 
 TD
-
-<br>
 
 # Usage
 
