@@ -114,7 +114,3 @@ func onMessageReceived(client MQTT.Client, message MQTT.Message) {
 
 	MQTTmessageQueue = append(MQTTmessageQueue, newMessage)
 }
-
-// TODO - Periodically check if MQTT channels
-// and topics have been changed, anf it so
-// update connecting clients accordingly

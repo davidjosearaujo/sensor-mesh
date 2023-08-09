@@ -19,6 +19,7 @@ Imagine a factory floor with multiple independent nodes, each with its sensors a
 - [Build](#build)
 - [Configuration](#configurations)
 - [Usage](#usage)
+- [Future Work](#future-work)
 
 # Install
 
@@ -80,3 +81,7 @@ TD
 # Usage
 
 TD
+
+# Future Work
+
+- [] Optimize logging. Enable the user to choose between logging into a file or just print to console.

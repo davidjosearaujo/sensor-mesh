@@ -64,7 +64,6 @@ var initCmd = &cobra.Command{
 	Short: "Initialize local SensorMesh configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Checking if IPFS configs exist
-		// TODO FEATURE - Allow to user to specify the IPFS repo path
 		location := filepath.Join(os.Getenv("IPFS_PATH"), "config")
 		_, err := utils.Exists(filepath.Join(os.Getenv("IPFS_PATH"), "config"))
 		if err != nil {
