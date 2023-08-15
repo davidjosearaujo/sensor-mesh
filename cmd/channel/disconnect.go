@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 David Araújo <davidaraujo98@github.io>
+Copyright © 2023 David Araújo <davidjosearaujo@github.io>
 */
 package channel
 

@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 David Araújo <davidaraujo98@github.io>
+Copyright © 2023 David Araújo <davidjosearaujo@github.io>
 */
 package cmd
 
@@ -65,14 +65,19 @@ func publish() {
 
 func subscribe() {
 	defer cancel()
-	var lastValue []byte
-	file, err := os.OpenFile(utils.ViperConfs.GetString("logfile"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(fmt.Errorf("failed to open log file "+utils.ViperConfs.GetString("logfile")+": %s", err))
+	var lastValue string
+	var fileWriter *log.Logger
+
+	if logToFile {
+		file, err := os.OpenFile(utils.ViperConfs.GetString("logfile"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(fmt.Errorf("failed to open log file "+utils.ViperConfs.GetString("logfile")+": %s", err))
+		}
+		fileWriter = log.New(file, "", 0)
+		defer file.Close()
+		fmt.Println("[+] Writing log to " + utils.ViperConfs.GetString("logfile"))
 	}
-	fileWriter := log.New(file, "", 0)
-	defer file.Close()
-	fmt.Println("[+] Writing log to " + utils.ViperConfs.GetString("logfile"))
+
 	for {
 		//Reading the last value inserted in the log store
 		op, err := logStore.List(ctx, &iface.StreamOptions{})
@@ -85,8 +90,12 @@ func subscribe() {
 			//Since we are using timestamps, all correct messages will be
 			//different, so this method becomes reliable in avoiding
 			//incorrect or duplicate messages
-			lastValue = op[0].GetValue()
-			fileWriter.Println(strings.TrimRight(string(op[0].GetValue()), "\n"))
+			lastValue = string(op[0].GetValue())
+			if logToFile {
+				fileWriter.Println(strings.TrimRight(lastValue, "\n"))
+			}else{
+				fmt.Println(lastValue)
+			}
 		}
 	}
 }
@@ -101,7 +110,6 @@ func publishLog() {
 	// Reset reading buffer
 	logbuf.Reset()
 }
-
 
 func onMessageReceived(client MQTT.Client, message MQTT.Message) {
 	clientOptions := client.OptionsReader()

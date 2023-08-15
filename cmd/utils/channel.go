@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 David Araújo <davidaraujo98@github.io>
+Copyright © 2023 David Araújo <davidjosearaujo@github.io>
 */
 package utils
 
@@ -42,7 +42,7 @@ func DisconnectChannelTopic(broker string, topics []string) {
 		if channelMap["broker"].(string) != broker {
 			updatedChannels = append(updatedChannels, channel)
 		} else if len(topics) > 0 {
-			topicList := channelMap["topics"].([]interface {})
+			topicList := channelMap["topics"].([]interface{})
 
 			removingTopics := make(map[string]bool)
 			updatedTopics := []string{}

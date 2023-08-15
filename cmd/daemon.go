@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 David Araújo <davidaraujo98@github.io>
+Copyright © 2023 David Araújo <davidjosearaujo@github.io>
 */
 package cmd
 
@@ -29,6 +29,7 @@ var (
 	logbuf       bytes.Buffer
 	logger       zerolog.Logger
 	logStore     iface.EventLogStore
+	logToFile    bool
 )
 
 // daemonCmd represents the daemon command
@@ -151,4 +152,5 @@ func init() {
 	rootCmd.AddCommand(daemonCmd)
 	daemonCmd.Flags().StringVar(&storeAddress, "storeaddress", "event", "Address of the log store. Defaults to create a new log store with name 'event'")
 	_ = daemonCmd.MarkFlagRequired("name")
+	daemonCmd.Flags().BoolVar(&logToFile, "logtofile", false, "Turn on the logging output to a file")
 }

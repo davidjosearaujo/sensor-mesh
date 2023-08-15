@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 David Araújo <davidaraujo98@github.io>
+Copyright © 2023 David Araújo <davidjosearaujo@github.io>
 */
 package cmd
 
@@ -11,12 +11,10 @@ import (
 	"path/filepath"
 	"sensormesh/cmd/utils"
 
-	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/spf13/cobra"
 )
 
 var (
-	IpfsApi          *shell.Shell
 	IpfsPath         string
 	swarmkey         string
 	nodename         string
